@@ -9,8 +9,8 @@ data class Element(
     val state: String,
     val period: Int?,
     val group: Int?,
-    val electronegativity: Float?,
-//    val electronConfiguration: String
+    val electronegativity: Double?,
+    val electronConfiguration: String
 )
 
 
