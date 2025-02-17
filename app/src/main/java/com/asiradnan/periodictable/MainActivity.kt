@@ -2,7 +2,6 @@ package com.asiradnan.periodictable
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -29,11 +29,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,21 +41,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.asiradnan.periodictable.ui.theme.PeriodicTableTheme
-import java.io.File
 
 object ThemePreference {
     private const val PREF_NAME = "AppPreferences"
@@ -111,7 +110,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContent {
             var isDarkTheme by remember {
                 mutableStateOf(ThemePreference.getDarkMode(this))
@@ -119,35 +117,52 @@ class MainActivity : ComponentActivity() {
             var isEnglish by remember {
                 mutableStateOf(ThemePreference.getLanguage(this))
             }
+            WindowCompat.getInsetsController(window, window.decorView).apply {
+                isAppearanceLightStatusBars = !isDarkTheme
+            }
 
             PeriodicTableTheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = "chemicalElements") {
-                    composable("chemicalElements") {
-                        ChemicalElementsScreen(
-                            navController = navController,
-                            isDarkTheme = isDarkTheme,
-                            onThemeChanged = { newTheme ->
-                                isDarkTheme = newTheme
-                                ThemePreference.saveDarkMode(this@MainActivity, newTheme)
-                            },
-                            isEnglish = isEnglish,
-                            onLanguageChanged = { newLanguage ->
-                                isEnglish = newLanguage
-                                ThemePreference.saveLanguage(this@MainActivity, newLanguage)
-                            }
-                        )
-                    }
-                    composable("elementDetail/{atomicNumber}") { backStackEntry ->
-                        val atomicNumber =
-                            backStackEntry.arguments?.getString("atomicNumber")?.toIntOrNull()
-                        val element = elements.find { it.atomicNumber == atomicNumber }
-                        if (element != null) {
-                            ElementDetailScreen(
-                                element = element,
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = if (isDarkTheme) Color.Black else Color.White
+
+                ) { paddingValues ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "chemicalElements",
+                        modifier = Modifier.padding(paddingValues)
+                    ) {
+                        composable("chemicalElements") {
+                            ChemicalElementsScreen(
+                                navController = navController,
                                 isDarkTheme = isDarkTheme,
-                                isEnglish = isEnglish
+                                onThemeChanged = { newTheme ->
+                                    WindowCompat.getInsetsController(window, window.decorView)
+                                        .apply {
+                                            isAppearanceLightStatusBars = !newTheme
+                                        }
+                                    isDarkTheme = newTheme
+                                    ThemePreference.saveDarkMode(this@MainActivity, newTheme)
+                                },
+                                isEnglish = isEnglish,
+                                onLanguageChanged = { newLanguage ->
+                                    isEnglish = newLanguage
+                                    ThemePreference.saveLanguage(this@MainActivity, newLanguage)
+                                }
                             )
+                        }
+                        composable("elementDetail/{atomicNumber}") { backStackEntry ->
+                            val atomicNumber =
+                                backStackEntry.arguments?.getString("atomicNumber")?.toIntOrNull()
+                            val element = elements.find { it.atomicNumber == atomicNumber }
+                            if (element != null) {
+                                ElementDetailScreen(
+                                    element = element,
+                                    isDarkTheme = isDarkTheme,
+                                    isEnglish = isEnglish
+                                )
+                            }
                         }
                     }
                 }
@@ -169,131 +184,171 @@ fun ChemicalElementsScreen(
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
 
     val filteredElements = remember(searchQuery.text) {
+    if (isEnglish) {
         elements.filter {
             it.name.contains(searchQuery.text, ignoreCase = true) ||
                     it.symbol.contains(searchQuery.text, ignoreCase = true)
         }
+    } else {
+        elements.filterIndexed { index, element ->
+            index < banglaNames.size && banglaNames[index].contains(searchQuery.text, ignoreCase = true)
+            || element.symbol.contains(searchQuery.text, ignoreCase = true)
+        }
     }
+}
+
+
 
     val backgroundColor = if (isDarkTheme) Color.Black else Color.White
     val textColor = if (isDarkTheme) Color.White else Color.Black
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = backgroundColor
-    ) { paddingValues ->
-        Column(
+    // Set system UI colors
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .background(color = backgroundColor)
+    ) {
+        Spacer(modifier = Modifier.height(12.dp))
+        // Top Bar with Theme and Language Toggle
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .padding(paddingValues)
-                .background(color = backgroundColor)
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-//            Spacer(modifier = Modifier.height(8.dp))
-            // Top Bar with Theme and Language Toggle
+
+            // Theme Toggle
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onThemeChanged(!isDarkTheme) }
             ) {
-
-                // Theme Toggle
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { onThemeChanged(!isDarkTheme) }
-                ) {
-                    Icon(
-                        imageVector = if (isDarkTheme) ImageVector.vectorResource(id = R.drawable.light_mode_24dp_5f6368_fill0_wght400_grad0_opsz24) else ImageVector.vectorResource(
-                            id = R.drawable.dark_mode_24dp_5f6368_fill0_wght400_grad0_opsz24
-                        ),
-                        contentDescription = "Theme Toggle",
-                        tint = textColor
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (isDarkTheme) "Light" else "Dark",
-                        color = textColor
-                    )
-                }
-
-                // Language Toggle
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { onLanguageChanged(!isEnglish) }
-                ) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.language_24dp_5f6368_fill0_wght400_grad0_opsz24),
-                        contentDescription = "Language Toggle",
-                        tint = textColor
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (isEnglish) "বাংলা" else "English",
-                        color = textColor
-                    )
-                }
+                Icon(
+                    imageVector = if (isDarkTheme) ImageVector.vectorResource(id = R.drawable.light_mode_24dp_5f6368_fill0_wght400_grad0_opsz24) else ImageVector.vectorResource(
+                        id = R.drawable.dark_mode_24dp_5f6368_fill0_wght400_grad0_opsz24
+                    ),
+                    contentDescription = "Theme Toggle",
+                    tint = textColor
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = if (isDarkTheme) "Light" else "Dark",
+                    color = textColor
+                )
             }
-Spacer(modifier = Modifier.height(4.dp))
-            // Search Bar
-            TextField(
+
+            // Language Toggle
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onLanguageChanged(!isEnglish) }
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.language_24dp_5f6368_fill0_wght400_grad0_opsz24),
+                    contentDescription = "Language Toggle",
+                    tint = textColor
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = if (isEnglish) "বাংলা" else "English",
+                    color = textColor
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        // Search Bar
+//        var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp)  // Adjust height to make it smaller
+                .shadow(
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .background(
+                    color = if (isDarkTheme) Color.DarkGray else Color.White,
+                    shape = RoundedCornerShape(20.dp)
+                ),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            BasicTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-                    .shadow(elevation = 4.dp, shape = RoundedCornerShape(40.dp)),
-                placeholder = {
-                    Text(
-                        text = if (isEnglish) "Search..." else "অনুসন্ধান করুন..."
-                    )
-                },
-                shape = RoundedCornerShape(40.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = if (isDarkTheme) Color.DarkGray else Color.White,
-                    unfocusedContainerColor = if (isDarkTheme) Color.DarkGray else Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedTextColor = textColor,
-                    unfocusedTextColor = textColor
-                ),
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 8.dp
+                    ),  // Adjust padding for better alignment
                 singleLine = true,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search Icon",
-                        tint = Color.Gray
-                    )
-                },
-                trailingIcon = {
-                    if (searchQuery.text.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = TextFieldValue("") }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Clear Icon",
-                                tint = Color.Gray
-                            )
+                decorationBox = { innerTextField ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search Icon",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(18.dp)  // Adjust icon size
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            if (searchQuery.text.isEmpty()) {
+                                Text(
+                                    text = if (isEnglish) "Search..." else "অনুসন্ধান করুন...",
+                                    color = Color.Gray,
+                                    fontSize = 14.sp  // Adjust font size
+                                )
+                            }
+                            innerTextField()  // Render the actual text field
+                        }
+                        if (searchQuery.text.isNotEmpty()) {
+                            IconButton(
+                                onClick = { searchQuery = TextFieldValue("") },
+                                modifier = Modifier.size(18.dp)  // Adjust icon size
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Clear Icon",
+                                    tint = Color.Gray
+                                )
+                            }
                         }
                     }
-                }
-            )
+                },
+                cursorBrush =
+                if (isDarkTheme) Brush.verticalGradient(listOf(Color.White, Color.White))
+                else Brush.verticalGradient(listOf(Color.Black, Color.Black)),
+                textStyle = LocalTextStyle.current.copy(
+                    color = textColor,
+                    fontSize = 14.sp,
 
-            Spacer(modifier = Modifier.height(2.dp))
-
-            // Elements List
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(filteredElements) { element ->
-                    ElementCard(
-                        element = element,
-                        isDarkTheme = isDarkTheme,
-                        isEnglish = isEnglish,
-                        onClick = { selectedElement ->
-                            navController.navigate("elementDetail/${selectedElement.atomicNumber}")
-                        }
                     )
-                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(2.dp))
+
+        // Elements List
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(filteredElements) { element ->
+                ElementCard(
+                    element = element,
+                    isDarkTheme = isDarkTheme,
+                    isEnglish = isEnglish,
+                    onClick = { selectedElement ->
+                        navController.navigate("elementDetail/${selectedElement.atomicNumber}")
+                    }
+                )
             }
         }
     }
@@ -326,8 +381,10 @@ fun ElementCard(
                 modifier = Modifier
                     .size(64.dp)
                     .shadow(elevation = 2.dp, shape = RoundedCornerShape(12.dp))
-                    .background(color = if (isDarkTheme) Color.DarkGray.copy(alpha = 0.4f) else Color.White,
-                        shape = RoundedCornerShape(12.dp)),
+                    .background(
+                        color = if (isDarkTheme) Color.DarkGray.copy(alpha = 0.4f) else Color.White,
+                        shape = RoundedCornerShape(12.dp)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -374,126 +431,124 @@ fun ElementDetailScreen(
     isEnglish: Boolean
 ) {
     val textColor = if (isDarkTheme) Color.White else Color.Black
-    Scaffold { innerPadding ->
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = if (isDarkTheme) Color.Black else Color.White)
+            .padding(horizontal = 16.dp, vertical = 0.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+
+    ) {
+        Spacer(modifier = Modifier.height(48.dp))
+
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(color = if (isDarkTheme) Color.Black else Color.White)
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 0.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-
+                .size(128.dp)
+                .shadow(
+                    8.dp,
+                    shape = RoundedCornerShape(24.dp)
+                )
+                .background(
+                    color = if (isDarkTheme) Color.DarkGray.copy(alpha = 0.4f) else Color.White,
+                    shape = RoundedCornerShape(24.dp)
+                ),
+            contentAlignment = Alignment.Center
         ) {
-            Spacer(modifier = Modifier.height(48.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(128.dp)
-                    .shadow(8.dp,
-                        shape = RoundedCornerShape(24.dp)
-                    )
-                    .background(
-                        color = if (isDarkTheme) Color.DarkGray.copy(alpha = 0.4f) else Color.White,
-                        shape = RoundedCornerShape(24.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = if (isEnglish)
-                        element.atomicNumber.toString()
-                    else
-                        NumberTranslator.translateToBangla(element.atomicNumber.toString()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(12.dp),
-                    color = textColor
-                )
-
-                Text(
-                    text = element.symbol,
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 45.sp,
-                    color = textColor
-                )
-            }
-            Spacer(modifier = Modifier.height(48.dp))
-
-            // Element Name
             Text(
-                text = if (isEnglish) element.name else banglaNames[element.atomicNumber - 1],
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 35.sp,
+                text = if (isEnglish)
+                    element.atomicNumber.toString()
+                else
+                    NumberTranslator.translateToBangla(element.atomicNumber.toString()),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(12.dp),
                 color = textColor
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            // Electron Configuration
+
             Text(
-                text = element.electronConfiguration,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isDarkTheme) Color.LightGray else Color.Gray,
-                fontFamily = FontFamily.SansSerif,
-                fontSize = 16.sp
+                text = element.symbol,
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 45.sp,
+                color = textColor
             )
+        }
+        Spacer(modifier = Modifier.height(48.dp))
 
-            Spacer(modifier = Modifier.height(64.dp))
+        // Element Name
+        Text(
+            text = if (isEnglish) element.name else banglaNames[element.atomicNumber - 1],
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 35.sp,
+            color = textColor
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        // Electron Configuration
+        Text(
+            text = element.electronConfiguration,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (isDarkTheme) Color.LightGray else Color.Gray,
+            fontFamily = FontFamily.SansSerif,
+            fontSize = 16.sp
+        )
 
-            // Details List
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start
-            ) {
-                DetailRow(
-                    isEnglish = isEnglish,
-                    isDarkTheme = isDarkTheme,
-                    label = "Kind",
-                    value = if (isEnglish) element.kind else toBanglaKind(element.kind),
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                DetailRow(
-                    isEnglish = isEnglish,
-                    isDarkTheme = isDarkTheme,
-                    label = "Group",
-                    value = element.group?.toString() ?: "N/A"
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                DetailRow(
-                    isEnglish = isEnglish,
-                    isDarkTheme = isDarkTheme,
-                    label = "Period",
-                    value = element.period?.toString() ?: "N/A"
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                DetailRow(
-                    isEnglish = isEnglish,
-                    isDarkTheme = isDarkTheme,
-                    label = "Protons",
-                    value = element.atomicNumber.toString()
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                DetailRow(
-                    isEnglish = isEnglish, isDarkTheme = isDarkTheme,
-                    label = "Neutrons",
-                    value = (element.atomicMass?.toInt()?.minus(element.atomicNumber))?.toString()
-                        ?: "N/A"
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                DetailRow(
-                    isEnglish = isEnglish,
-                    isDarkTheme = isDarkTheme,
-                    label = "Electrons",
-                    value = element.atomicNumber.toString()
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                DetailRow(
-                    isEnglish = isEnglish, isDarkTheme = isDarkTheme,
-                    label = "Electronegativity",
-                    value = element.electronegativity?.toString() ?: "N/A"
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-            }
+        Spacer(modifier = Modifier.height(64.dp))
+
+        // Details List
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.Start
+        ) {
+            DetailRow(
+                isEnglish = isEnglish,
+                isDarkTheme = isDarkTheme,
+                label = "Kind",
+                value = if (isEnglish) element.kind else toBanglaKind(element.kind),
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            DetailRow(
+                isEnglish = isEnglish,
+                isDarkTheme = isDarkTheme,
+                label = "Group",
+                value = element.group?.toString() ?: "N/A"
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            DetailRow(
+                isEnglish = isEnglish,
+                isDarkTheme = isDarkTheme,
+                label = "Period",
+                value = element.period?.toString() ?: "N/A"
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            DetailRow(
+                isEnglish = isEnglish,
+                isDarkTheme = isDarkTheme,
+                label = "Protons",
+                value = element.atomicNumber.toString()
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            DetailRow(
+                isEnglish = isEnglish, isDarkTheme = isDarkTheme,
+                label = "Neutrons",
+                value = (element.atomicMass?.toInt()?.minus(element.atomicNumber))?.toString()
+                    ?: "N/A"
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            DetailRow(
+                isEnglish = isEnglish,
+                isDarkTheme = isDarkTheme,
+                label = "Electrons",
+                value = element.atomicNumber.toString()
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            DetailRow(
+                isEnglish = isEnglish, isDarkTheme = isDarkTheme,
+                label = "Electronegativity",
+                value = element.electronegativity?.toString() ?: "N/A"
+            )
+            Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }
