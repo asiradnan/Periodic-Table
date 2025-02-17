@@ -215,11 +215,10 @@ fun ChemicalElementsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(start = 8.dp, bottom = 12.dp, end = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             // Theme Toggle
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -256,10 +255,7 @@ fun ChemicalElementsScreen(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
         // Search Bar
-//        var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -334,7 +330,7 @@ fun ChemicalElementsScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Elements List
         LazyColumn(
