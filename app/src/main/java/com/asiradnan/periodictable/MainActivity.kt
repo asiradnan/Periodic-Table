@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -48,6 +50,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -124,7 +128,9 @@ class MainActivity : ComponentActivity() {
             PeriodicTableTheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
+                                        .systemBarsPadding(), // Add system bars padding
+
                     containerColor = if (isDarkTheme) Color.Black else Color.White
 
                 ) { paddingValues ->
@@ -184,19 +190,21 @@ fun ChemicalElementsScreen(
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
 
     val filteredElements = remember(searchQuery.text) {
-    if (isEnglish) {
-        elements.filter {
-            it.name.contains(searchQuery.text, ignoreCase = true) ||
-                    it.symbol.contains(searchQuery.text, ignoreCase = true)
-        }
-    } else {
-        elements.filterIndexed { index, element ->
-            index < banglaNames.size && banglaNames[index].contains(searchQuery.text, ignoreCase = true)
-            || element.symbol.contains(searchQuery.text, ignoreCase = true)
+        if (isEnglish) {
+            elements.filter {
+                it.name.contains(searchQuery.text, ignoreCase = true) ||
+                        it.symbol.contains(searchQuery.text, ignoreCase = true)
+            }
+        } else {
+            elements.filterIndexed { index, element ->
+                index < banglaNames.size && banglaNames[index].contains(
+                    searchQuery.text,
+                    ignoreCase = true
+                )
+                        || element.symbol.contains(searchQuery.text, ignoreCase = true)
+            }
         }
     }
-}
-
 
 
     val backgroundColor = if (isDarkTheme) Color.Black else Color.White
@@ -210,12 +218,12 @@ fun ChemicalElementsScreen(
             .padding(horizontal = 16.dp)
             .background(color = backgroundColor)
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         // Top Bar with Theme and Language Toggle
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp, bottom = 12.dp, end = 8.dp),
+                .padding(start = 8.dp, bottom = 16.dp, end = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -423,128 +431,174 @@ fun ElementCard(
 
 @Composable
 fun ElementDetailScreen(
-    element: Element, isDarkTheme: Boolean,
+    element: Element,
+    isDarkTheme: Boolean,
     isEnglish: Boolean
 ) {
     val textColor = if (isDarkTheme) Color.White else Color.Black
-    Column(
+
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(color = if (isDarkTheme) Color.Black else Color.White)
-            .padding(horizontal = 16.dp, vertical = 0.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        val screenWidth = maxWidth
+        val screenHeight = maxHeight
 
-        Box(
-            modifier = Modifier
-                .size(128.dp)
-                .shadow(
-                    8.dp,
-                    shape = RoundedCornerShape(24.dp)
-                )
-                .background(
-                    color = if (isDarkTheme) Color.DarkGray.copy(alpha = 0.4f) else Color.White,
-                    shape = RoundedCornerShape(24.dp)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = if (isEnglish)
-                    element.atomicNumber.toString()
-                else
-                    NumberTranslator.translateToBangla(element.atomicNumber.toString()),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(12.dp),
-                color = textColor
-            )
+        // Adjust sizes and spacing based on screen size
+        val boxSize = if (screenWidth < 600.dp) 96.dp else 128.dp
+        val topSpacing = if (screenWidth < 600.dp) 24.dp else 48.dp
+        val fontSizeLarge = if (screenWidth < 600.dp) 35.sp else 45.sp
+        val fontSizeMedium = if (screenWidth < 600.dp) 25.sp else 35.sp
+        val fontSizeSmall = if (screenWidth < 600.dp) 14.sp else 18.sp
 
-            Text(
-                text = element.symbol,
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 45.sp,
-                color = textColor
-            )
-        }
-        Spacer(modifier = Modifier.height(48.dp))
-
-        // Element Name
-        Text(
-            text = if (isEnglish) element.name else banglaNames[element.atomicNumber - 1],
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 35.sp,
-            color = textColor
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        // Electron Configuration
-        Text(
-            text = element.electronConfiguration,
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (isDarkTheme) Color.LightGray else Color.Gray,
-            fontFamily = FontFamily.SansSerif,
-            fontSize = 16.sp
-        )
-
-        Spacer(modifier = Modifier.height(64.dp))
-
-        // Details List
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.Start
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 0.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DetailRow(
-                isEnglish = isEnglish,
-                isDarkTheme = isDarkTheme,
-                label = "Kind",
-                value = if (isEnglish) element.kind else toBanglaKind(element.kind),
+            Spacer(modifier = Modifier.height(topSpacing))
+
+            // Element Symbol Box
+            Box(
+                modifier = Modifier
+                    .size(boxSize)
+                    .shadow(
+                        8.dp,
+                        shape = RoundedCornerShape(24.dp)
+                    )
+                    .background(
+                        color = if (isDarkTheme) Color.DarkGray.copy(alpha = 0.4f) else Color.White,
+                        shape = RoundedCornerShape(24.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (isEnglish)
+                        element.atomicNumber.toString()
+                    else
+                        NumberTranslator.translateToBangla(element.atomicNumber.toString()),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(12.dp),
+                    color = textColor
+                )
+
+                Text(
+                    text = element.symbol,
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = fontSizeLarge,
+                    color = textColor
+                )
+            }
+
+            Spacer(modifier = Modifier.height(topSpacing))
+
+            // Element Name
+            Text(
+                text = if (isEnglish) element.name else banglaNames[element.atomicNumber - 1],
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = fontSizeMedium,
+                color = textColor
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            DetailRow(
-                isEnglish = isEnglish,
-                isDarkTheme = isDarkTheme,
-                label = "Group",
-                value = element.group?.toString() ?: "N/A"
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Electron Configuration
+            Text(
+                text = element.electronConfiguration,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (isDarkTheme) Color.LightGray else Color.Gray,
+                fontFamily = FontFamily.SansSerif,
+                fontSize = fontSizeSmall,
+                textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            DetailRow(
-                isEnglish = isEnglish,
-                isDarkTheme = isDarkTheme,
-                label = "Period",
-                value = element.period?.toString() ?: "N/A"
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            DetailRow(
-                isEnglish = isEnglish,
-                isDarkTheme = isDarkTheme,
-                label = "Protons",
-                value = element.atomicNumber.toString()
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            DetailRow(
-                isEnglish = isEnglish, isDarkTheme = isDarkTheme,
-                label = "Neutrons",
-                value = (element.atomicMass?.toInt()?.minus(element.atomicNumber))?.toString()
-                    ?: "N/A"
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            DetailRow(
-                isEnglish = isEnglish,
-                isDarkTheme = isDarkTheme,
-                label = "Electrons",
-                value = element.atomicNumber.toString()
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            DetailRow(
-                isEnglish = isEnglish, isDarkTheme = isDarkTheme,
-                label = "Electronegativity",
-                value = element.electronegativity?.toString() ?: "N/A"
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+
+            Spacer(modifier = Modifier.height(if (screenWidth < 600.dp) 32.dp else 64.dp))
+
+            // Details List
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                DetailRow(
+                    isEnglish = isEnglish,
+                    isDarkTheme = isDarkTheme,
+                    label = "Kind",
+                    value = if (isEnglish) element.kind else toBanglaKind(element.kind),
+                    fontSize = fontSizeSmall
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                DetailRow(
+                    isEnglish = isEnglish,
+                    isDarkTheme = isDarkTheme,
+                    label = "Atomic Mass",
+                    value = element.atomicMass.toString(),
+                    fontSize = fontSizeSmall
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                DetailRow(
+                    isEnglish = isEnglish,
+                    isDarkTheme = isDarkTheme,
+                    label = "Group",
+                    value = element.group?.toString() ?: "N/A",
+                    fontSize = fontSizeSmall
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                DetailRow(
+                    isEnglish = isEnglish,
+                    isDarkTheme = isDarkTheme,
+                    label = "Period",
+                    value = element.period?.toString() ?: "N/A",
+                    fontSize = fontSizeSmall
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                DetailRow(
+                    isEnglish = isEnglish,
+                    isDarkTheme = isDarkTheme,
+                    label = "Protons",
+                    value = element.atomicNumber.toString(),
+                    fontSize = fontSizeSmall
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                DetailRow(
+                    isEnglish = isEnglish,
+                    isDarkTheme = isDarkTheme,
+                    label = "Neutrons",
+                    value = (element.atomicMass?.toInt()?.minus(element.atomicNumber))?.toString()
+                        ?: "N/A",
+                    fontSize = fontSizeSmall
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                DetailRow(
+                    isEnglish = isEnglish,
+                    isDarkTheme = isDarkTheme,
+                    label = "Electrons",
+                    value = element.atomicNumber.toString(),
+                    fontSize = fontSizeSmall
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                DetailRow(
+                    isEnglish = isEnglish,
+                    isDarkTheme = isDarkTheme,
+                    label = "State",
+                    value = if (isEnglish) element.state else toBanglaState(element.state),
+                    fontSize = fontSizeSmall
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                DetailRow(
+                    isEnglish = isEnglish,
+                    isDarkTheme = isDarkTheme,
+                    label = "Electronegativity",
+                    value = element.electronegativity?.toString() ?: "N/A",
+                    fontSize = fontSizeSmall
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+            }
         }
     }
 }
@@ -554,7 +608,8 @@ fun DetailRow(
     label: String,
     value: String,
     isEnglish: Boolean = true,
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
+    fontSize: TextUnit
 ) {
     val textColor = if (isDarkTheme) Color.LightGray else Color.Gray
 
@@ -565,11 +620,11 @@ fun DetailRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = label,
+            text = if (isEnglish) label else toBanglaLabel(label),
             style = MaterialTheme.typography.bodyMedium,
             color = textColor,
             fontFamily = FontFamily.SansSerif,
-            fontSize = 18.sp,
+            fontSize = fontSize,
             modifier = Modifier.padding(start = 6.dp)
         )
         Text(
@@ -577,10 +632,34 @@ fun DetailRow(
             style = MaterialTheme.typography.bodyMedium,
             color = textColor,
             fontFamily = FontFamily.SansSerif,
-            fontSize = 18.sp,
+            fontSize = fontSize,
             modifier = Modifier.padding(end = 6.dp)
         )
     }
+}
+fun toBanglaLabel(label: String): String {
+    when (label) {
+        ("Kind") -> return "প্রকার"
+        ("Atomic Mass") -> return "পারমাণবিক ভর"
+        ("Group") -> return "গ্রুপ"
+        ("Period") -> return "পর্যায়"
+        ("Protons") -> return "প্রোটন"
+        ("Electrons") -> return "ইলেকট্রন"
+        ("State") -> return "অবস্থা"
+        ("Electronegativity") -> return "তড়িৎঋণাত্মকতা"
+        ("Neutrons") -> return "নিউট্রন"
+//        ("Liquid") -> return "তরল"
+    }
+    return label
+}
+
+fun toBanglaState(state: String): String {
+    when (state) {
+        ("Gas") -> return "বায়বীয়"
+        ("Solid") -> return "কঠিন"
+        ("Liquid") -> return "তরল"
+    }
+    return "অজ্ঞাত"
 }
 
 fun toBanglaKind(kind: String): String {
