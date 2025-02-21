@@ -121,9 +121,9 @@ class MainActivity : ComponentActivity() {
             var isEnglish by remember {
                 mutableStateOf(ThemePreference.getLanguage(this))
             }
-            WindowCompat.getInsetsController(window, window.decorView).apply {
-                isAppearanceLightStatusBars = !isDarkTheme
-            }
+//            WindowCompat.getInsetsController(window, window.decorView).apply {
+//                isAppearanceLightStatusBars = !isDarkTheme
+//            }
 
             PeriodicTableTheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
@@ -144,10 +144,10 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 isDarkTheme = isDarkTheme,
                                 onThemeChanged = { newTheme ->
-                                    WindowCompat.getInsetsController(window, window.decorView)
-                                        .apply {
-                                            isAppearanceLightStatusBars = !newTheme
-                                        }
+//                                    WindowCompat.getInsetsController(window, window.decorView)
+//                                        .apply {
+//                                            isAppearanceLightStatusBars = !newTheme
+//                                        }
                                     isDarkTheme = newTheme
                                     ThemePreference.saveDarkMode(this@MainActivity, newTheme)
                                 },
