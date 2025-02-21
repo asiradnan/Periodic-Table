@@ -16,7 +16,6 @@ An Android app built with **Jetpack Compose** that features a list of **118 elem
 
 ---
 
-## 📸 Screenshots
 
 ## 📸 Screenshots
 
