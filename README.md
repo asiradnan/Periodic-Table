@@ -18,9 +18,12 @@ An Android app built with **Jetpack Compose** that features a list of **118 elem
 
 ## 📸 Screenshots
 
+## 📸 Screenshots
+
 | Light Mode | Dark Mode |
 |------------|-----------|
-| 📷 Insert Screenshot | 📷 Insert Screenshot |
+| <img src="Screenshots/Screenshot_20250221_172803.png" width="300"/> | <img src="Screenshots/Screenshot_20250221_172739.png" width="300"/> |
+
 
 ---
 
