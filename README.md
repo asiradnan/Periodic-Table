@@ -1,75 +1,94 @@
-# 📱 Periodic Table
+<p align="center"><h1 align="center">PERIODIC TABLE</h1></p>
+<h3 align="center">
+Check out: <a href="https://play.google.com/store/apps/details?id=com.asiradnan.periodictable&pli=1/">Live on Play Store</a>
+</h3>
+<p align="center">Built with the tools and technologies:</p>
+<p align="center">
+    <img src="https://img.shields.io/badge/Kotlin-0095D5.svg?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin">
+    <img src="https://img.shields.io/badge/Android-3DDC84.svg?style=for-the-badge&logo=android&logoColor=white" alt="Android" />
+    <img src="https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=gradle&logoColor=white" alt="Gradle">
+</p>
+<br>
+<p align="center">
+  <img src="screenshots/edited_ss.png" alt="Periodic Table Android App screenshot" width="400"/>
+</p>
 
-An Android app built with **Jetpack Compose** that features a list of **118 elements**, each with detailed information. Supports **light/dark themes** and **Bangla/English** language selection. 🚀
+## Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Overview](#overview)
+- [Tech](#tech)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [License](#license)
+
+## Overview
+An Android application built with Kotlin that provides a visual periodic table for chemistry reference. Explore detailed information about each chemical element with an interactive UI.
 
 ---
 
-## ✨ Features
-
-- 📜 **118 Elements List** – Click on any element to view its details.
-- 🎨 **Themes** – Light and Dark themes.
-- 🌍 **Multi-language Support** – Choose between **Bangla** and **English**.
-- 🔍 **Search Functionality** – Works seamlessly for both **Bangla** and **English**.
-- ⚡ **Jetpack Compose UI** – Fully modern, reactive, and smooth UI experience.
-- 🔥 **State Management** – Efficient handling of UI state.
-- 🛠 **MVVM Architecture** – Clean and scalable codebase.
-
----
+## Tech
+- **Language:** Kotlin  
+- **Platform:** Android (SDK + Gradle)  
+- **Build Tool:** Gradle (Kotlin DSL)  
+- **UI:** Android Views or Jetpack Compose (based on repo content)
 
 
-## 📸 Screenshots
+## Features
+- **Interactive Periodic Table:** Browse and tap on elements to view detailed data.
+- **Element Details:** Displays atomic number, symbol, weight, group, period, etc.
+- **Search Functionality:** Quickly find elements by name.
+- **Clean UI:** Optimized for mobile devices with intuitive navigation.
+- **Language Support:** All functionalities available for both English and Bangla
+## Project Structure
 
-| Light Mode | Dark Mode |
-|------------|-----------|
-| <img src="Screenshots/Screenshot_20250221_172803.png" width="300"/> | <img src="Screenshots/Screenshot_20250221_172739.png" width="300"/> |
+```text
+Periodic‑Table/
+├── app/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── AndroidManifest.xml
+│   │   │   ├── java/... (Kotlin source files)
+│   │   │   └── res/
+│   │   │       ├── layout/
+│   │   │       ├── values/
+│   │   │       └── drawable/
+│   └── build.gradle.kts
+├── build.gradle.kts
+├── gradle/
+├── gradle.properties
+├── gradlew
+├── gradlew.bat
+└── settings.gradle.kts
+```
 
+## Getting Started
+### Prerequisites
+- Android Studio (Arctic Fox or later recommended)
+- Android SDK installed via Android Studio
+- Kotlin plugin (bundled with AS)
 
----
-
-## 🚀 Getting Started
-
-### Clone the Repository
+###  Installation
+1. Clone the repository:
+   
 ```sh
 git clone https://github.com/asiradnan/Periodic-Table.git
 ```
 
-### Build & Run
-1. Open the project in **Android Studio**.
-2. Sync dependencies and build the project.
-3. Run on an emulator or physical device.
+2. Navigate to the project directory:
+```sh
+cd Periodic-Table
+```
+
+3. Open in Android Studio → Let it import and download Gradle dependencies.
+
+4. Build and run the app on an Android device or emulator.
+
+
+##  License
+
+This project is protected under the [MIT](https://choosealicense.com/licenses/mit/) License. For more details, refer to the [LICENSE](https://github.com/asiradnan/Periodic-Table/blob/main/LICENSE) file.
 
 ---
-
-## 🛠 Technologies Used
-- **Jetpack Compose** – UI Toolkit
-- **Kotlin** – Primary Language
-- **Material 3** – Theming & Components
-- **Local Storage** – SharedPreferences for language settings
-
----
-
-## 📌 Roadmap
-- [ ] Improve animations 🌀
-- [ ] Add more languages 🌎
-- [ ] Add filtering options 🔽
-
----
-
-## 🤝 Contributing
-Pull requests are welcome! If you find a bug or have a feature request, feel free to open an issue. 🙌
-
----
-
-## 📄 License
-This project is **open-source** and available under the **MIT License**.
-
----
-
-## 💬 Connect With Me
-- 💼 [Asir Adnan](https://asiradnan.com)
-- 🔗 [LinkedIn](https://linkedin.com/in/asiradnan)
-- 📧 Email: hello@asiradnan.com
-
----
-
-Give this repo a ⭐ if you found it useful! 😃
