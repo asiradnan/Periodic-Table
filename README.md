@@ -16,6 +16,7 @@ Check out: <a href="https://play.google.com/store/apps/details?id=com.asiradnan.
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
+- [Screenshots](#screenshots)
 - [Tech](#tech)
 - [Features](#features)
 - [Project Structure](#project-structure)
@@ -26,6 +27,37 @@ Check out: <a href="https://play.google.com/store/apps/details?id=com.asiradnan.
 
 ## Overview
 An Android application built with Kotlin that provides a visual periodic table for chemistry reference. Explore detailed information about each chemical element with an interactive UI.
+
+## Screenshots
+
+### Mobile Views
+<p align="center">
+  <img src="screenshots/ss_from_ss_1.png" alt="Periodic Table Main View" width="300"/>
+  <img src="screenshots/ss_from_ss_2.png" alt="Element Details View" width="300"/>
+  <img src="screenshots/ss_from_ss3.png" alt="Element Information" width="300"/>
+</p>
+
+### Language Support
+The app supports both **English** and **Bangla** languages:
+
+#### English Interface
+<p align="center">
+  <img src="screenshots/fold_7_dark_english.png" alt="Dark Mode - English" width="300"/>
+  <img src="screenshots/tab_10_light_english.png" alt="Light Mode - English" width="300"/>
+</p>
+
+#### Bangla Interface
+<p align="center">
+  <img src="screenshots/fold_7_light_bangla.png" alt="Light Mode - Bangla" width="300"/>
+  <img src="screenshots/tab_10_dark_bangla.png" alt="Dark Mode - Bangla" width="300"/>
+</p>
+
+### Additional Screenshots
+<p align="center">
+  <img src="screenshots/Screenshot_20250529_182438.png" alt="App Interface 1" width="250"/>
+  <img src="screenshots/Screenshot_20250529_182457.png" alt="App Interface 2" width="250"/>
+  <img src="screenshots/Screenshot_20250529_182617.png" alt="App Interface 3" width="250"/>
+</p>
 
 ---
 
