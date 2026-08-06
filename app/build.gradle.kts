@@ -5,15 +5,15 @@ plugins {
 
 android {
     namespace = "com.asiradnan.periodictable"
-    compileSdk = 35
+    compileSdk = 37
 
 
     defaultConfig {
         applicationId = "com.asiradnan.periodictable"
         minSdk = 29
-        targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        targetSdk = 37
+        versionCode = 3
+        versionName = "1.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -62,10 +62,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.material)
-//    implementation(libs.androidx.appcompat)
-//    implementation(libs.androidx.constraintlayout)
-//    implementation(libs.androidx.navigation.fragment.ktx)
-//    implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
