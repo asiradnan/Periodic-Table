@@ -1,5 +1,7 @@
 package com.asiradnan.periodictable
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -22,7 +24,11 @@ fun PeriodicTableApp(
     NavHost(
         navController = navController,
         startDestination = "homeScreen",
-        modifier = modifier
+        modifier = modifier,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None }
     ) {
         composable("homeScreen") {
             HomeScreen(

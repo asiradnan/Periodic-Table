@@ -11,11 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PeriodicTable"
+        android:enableOnBackInvokedCallback="false"
         tools:targetApi="31">
-        <activity
-            android:name=".DetailActivity"
-            android:exported="false"
-            android:theme="@style/Theme.PeriodicTable" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
